@@ -46,7 +46,7 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  chatList.push(data);
+  chatList.push(data.userName + "さんが入室しました。");
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
