@@ -22,6 +22,8 @@ const onEnter = () => {
   // ユーザー名が入力されているかチェック
 
   // 入室メッセージを送信
+  const userName = "testName";
+  socket.emit("enterEvent", (userName + "さんが入室しました。"));
 
   // 全体で使用するnameに入力されたユーザー名を格納
 
