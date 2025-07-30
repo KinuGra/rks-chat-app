@@ -28,39 +28,43 @@ const form = reactive({
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  socket.emit("publishEvent", form.message)
+  socket.emit("publishEvent", { userName: userName.value, message: form.message })
 
   // 入力欄を初期化
 }
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-
+  socket.emit("exitEvent", { userName: userName.value })
 }
 
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
-
-  // 入力欄を初期化
-
+    if (form.message === "") {
+      alert("メモの内容を入力してください。")
+      return
+    }
+    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
+    //入力値を初期化
+    form.message = ""
 }
 // #endregion
 
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  chatList.push()
+  chatList.push(data.userName + "さんが入室しました。");
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
 const onReceiveExit = (data) => {
-  chatList.push()
+  chatList.push(data.userName + "さんが退室しました。")
 }
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push(`${userName.value}さんのメッセージ：${data}`)
+  chatList.push(`${data.userName}さんのメッセージ：${data.message}`)
   form.message = "";
 }
 // #endregion
@@ -70,12 +74,12 @@ const onReceivePublish = (data) => {
 const registerSocketEvent = () => {
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
-
+    onReceiveEnter(data);
   })
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
-
+    onReceiveExit(data)
   })
 
   // 投稿イベントを受け取ったら実行
@@ -94,11 +98,11 @@ const registerSocketEvent = () => {
       <textarea v-model="form.message" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
       <div class="mt-5">
         <button class="button-normal" @click="onPublish">投稿</button>
-        <button class="button-normal util-ml-8px">メモ</button>
+        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}</li>
         </ul>
       </div>
     </div>
