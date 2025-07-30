@@ -22,15 +22,15 @@ onMounted(() => {
 // #endregion
 
 const form = reactive({
-  message: ""
+  message: "",
 });
 
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
+  socket.emit("publishEvent", { userName: userName.value, message: form.message })
 
   // 入力欄を初期化
-
 }
 
 // 退室メッセージをサーバに送信する
@@ -64,7 +64,8 @@ const onReceiveExit = (data) => {
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push()
+  chatList.push(`${data.userName}さんのメッセージ：${data.message}`)
+  form.message = "";
 }
 // #endregion
 
@@ -83,7 +84,7 @@ const registerSocketEvent = () => {
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
-
+    onReceivePublish(data);
   })
 }
 // #endregion
@@ -96,7 +97,7 @@ const registerSocketEvent = () => {
       <p>ログインユーザ：{{ userName }}さん</p>
       <textarea v-model="form.message" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
       <div class="mt-5">
-        <button class="button-normal">投稿</button>
+        <button class="button-normal" @click="onPublish">投稿</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
