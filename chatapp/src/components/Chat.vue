@@ -45,7 +45,7 @@ const onMemo = () => {
       alert("メモの内容を入力してください。")
       return
     }
-    chatList.unshift(`${userName}さんのメモ: ${form.message}`).
+    chatList.push(`${userName}さんのメモ: ${form.message}`)
     //入力値を初期化
     form.message = ""
 }
