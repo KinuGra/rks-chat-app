@@ -10,3 +10,18 @@ export default function publishEvent(io, socket) {
         console.log("chatHistory", chatHistory);
     })
 }
+
+export function enterEvent(io, socket) {
+  socket.on("enterEvent", (data) => {
+    const serializedHistory = chatHistory.map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      sender: msg.sender,
+      type: msg.type,
+      timestamp: msg.timestamp,
+    }));
+    console.log(serializedHistory);
+
+    socket.emit("enterEvent", serializedHistory);
+  });
+}

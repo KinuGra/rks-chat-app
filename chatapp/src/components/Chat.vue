@@ -44,15 +44,27 @@ const onReceivePublish = (data) => {
 }
 // #endregion
 
+// サーバから受信した入室メッセージ画面上に表示する
+const onReceiveEnter = (data) => {
+  chatList.push(...data);
+}
+
 // #region local methods
 // イベント登録をまとめる
 const registerSocketEvent = () => {
+  // 入室イベントを受け取ったら実行
+  socket.on("enterEvent", (data) => {
+    onReceiveEnter(data);
+  })
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data);
   })
-
+  // login時にチャット履歴を表示
+  socket.emit("getChatHistory", (history) => {
+    chatList.push(...history);
+  });
 
 }
 // #endregion
