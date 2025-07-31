@@ -1,9 +1,10 @@
+let message_id = 1;
 
 // メッセージを表すクラス
-class Message{
-  constructor(id, content, sender) {
+export class Message{
+  constructor(content, sender) {
     const now = new Date();
-    this.id = id;
+    this.id = message_id++;
     this.content = content;
     this.sender = sender;
     this.type = "individual"
@@ -12,17 +13,16 @@ class Message{
 }
 
 // スレッドのメッセージを表すクラス
-class Thread {
-  constructor(id, title, tag, messages = []) {
-    this.id = id;
+export class Thread {
+  constructor(title, tags, message) {
+    this.id = message.id;
     this.title = title;
-    this.tag = tag;
-    this.messages = messages;
+    this.tags = tags;
+    this.messages = [message];
     this.type = "thread"
   }
 }
 // スレッドを集めたリスト
-const Threads = [];
-
+export const threads = [];
 // チャット履歴を集めたリスト
-const chatHistory = []
+export const chatHistory = [];
