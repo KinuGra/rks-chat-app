@@ -1,6 +1,6 @@
 
 // メッセージを表すクラス
-class Message{
+export class Message{
   constructor(id, content, sender) {
     const now = new Date();
     this.id = id;
@@ -12,7 +12,7 @@ class Message{
 }
 
 // スレッドのメッセージを表すクラス
-class Thread {
+export class Thread {
   constructor(id, title, tag, messages = []) {
     this.id = id;
     this.title = title;
@@ -22,7 +22,6 @@ class Thread {
   }
 }
 // スレッドを集めたリスト
-const Threads = [];
-
+export const threads = [];
 // チャット履歴を集めたリスト
-const chatHistory = []
+export const chatHistory = [];
