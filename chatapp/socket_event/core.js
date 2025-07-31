@@ -13,11 +13,11 @@ export class Message{
 
 // スレッドのメッセージを表すクラス
 export class Thread {
-  constructor(id, title, tag, messages = []) {
-    this.id = id;
+  constructor(title, tags, message) {
+    this.id = message.id;
     this.title = title;
-    this.tag = tag;
-    this.messages = messages;
+    this.tags = tags;
+    this.messages = [message];
     this.type = "thread"
   }
 }
