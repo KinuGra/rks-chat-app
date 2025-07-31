@@ -3,6 +3,16 @@ import { ref, reactive } from 'vue';
 import FilterModal from './FilterModal.vue';
 import { initChatData } from './dummyData.js';
 
+// 選択したスレッドをPropsで引き渡す用
+defineProps({
+  threads: {
+    type: Array,
+    required: true
+  }
+})
+
+const emit = defineEmits(['select-thread'])
+
 const chatHistory = reactive(initChatData)
 
 const isShowFilterModal = ref(false);
@@ -32,7 +42,7 @@ const filterTag = ref("全スレッド");
     <!-- 全スレッド -->
     <div v-for="(chat, i) in chatHistory.slice().reverse()" :key="chat.id">
         <ul v-if="chat.type === 'thread' && filterTag === '全スレッド'">
-            <li>
+            <li @click="emit('select-thread', chat)" style="cursor: pointer;">
                 {{ chat.title }}
                 <span v-for="(tag, i) in chat.tags" :key="chat.id">
                     {{ tag }}
@@ -45,7 +55,7 @@ const filterTag = ref("全スレッド");
     <!-- タグによる絞り込み -->
     <div v-for="(chat, i) in chatHistory.slice().reverse()" :key="chat.id">
         <ul v-if="chat.type === 'thread' && filterTag !== '全スレッド' && chat.tags.includes(filterTag)">
-            <li>
+            <li @click="emit('select-thread', chat)" style="cursor: pointer;">
                 {{ chat.title }}
                 <span v-for="(tag, i) in chat.tags" :key="chat.id">
                     {{ tag }}

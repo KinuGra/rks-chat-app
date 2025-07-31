@@ -5,6 +5,15 @@ import socketManager from '../socketManager.js'
 import Chat from './Chat.vue'
 import Thread from './Thread.vue'
 import ThreadList from './ThreadList/ThreadList.vue'
+import { initChatData } from './ThreadList/dummyData.js'
+
+const threads = ref(initChatData)
+const selectedThread = ref(null)
+const newMessage = ref("")
+
+const handleSelectThread = (thread) => {
+  selectedThread.value = thread
+}
 
 // #region global state
 const userName = inject("userName")
@@ -45,13 +54,13 @@ const onExit = () => {
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
-    if (form.message === "") {
-      alert("メモの内容を入力してください。")
-      return
-    }
-    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
-    //入力値を初期化
-    form.message = ""
+  if (form.message === "") {
+    alert("メモの内容を入力してください。")
+    return
+  }
+  chatList.push(`${userName.value}さんのメモ: ${form.message}`)
+  //入力値を初期化
+  form.message = ""
 }
 // #endregion
 
@@ -101,13 +110,14 @@ const registerSocketEvent = () => {
     <div v-if="$route.name === 'thread'">
       <div class="flex">
         <Chat />
-        <Thread />
+        <Thread :selectedThread="selectedThread" :newMessage="newMessage" @update:newMessage="val => newMessage = val"
+          @send-message="handleSendMessage" @toggle-tag="handleToggleTag" />
       </div>
-      <ThreadList />
+      <ThreadList :threads="threads" @select-thread="handleSelectThread" />
     </div>
     <Chat v-else />
 
-    
+
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
