@@ -2,6 +2,31 @@
 import { ref, reactive } from 'vue';
 import FilterModal from './FilterModal.vue';
 import { initChatData } from './dummyData.js';
+import socketManager from "../../socketManager.js";
+import { onMounted } from 'vue';
+
+const emit = defineEmits(['select-thread'])
+
+// ThreadList/dummyData.jsから読み込む場合
+// const chatHistory = reactive(initChatData)
+
+// サーバーサイドからデータを読み込む場合
+const chatHistory = reactive([])
+
+// WebSocket処理
+const socket = socketManager.getInstance();
+onMounted(() => {
+    registerSocketEvent();
+    socket.emit("plzData", null);
+})
+// メッセージデータ受け取り
+const registerSocketEvent = () => {
+    socket.on("plzData", (data) => {
+        chatHistory.splice(0);
+        chatHistory.push(...data);
+        console.log(chatHistory)
+    })
+}
 
 // 選択したスレッドをPropsで引き渡す用
 defineProps({
@@ -10,10 +35,6 @@ defineProps({
     required: true
   }
 })
-
-const emit = defineEmits(['select-thread'])
-
-const chatHistory = reactive(initChatData)
 
 const isShowFilterModal = ref(false);
 const showModal = () => {
