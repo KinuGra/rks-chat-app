@@ -136,7 +136,7 @@ onMounted(() => {
 
   <div v-if="chatList.length !== 0">
     <v-row
-      v-for="(chat, i) in chatList.slice().reverse()"
+      v-for="(chat, i) in chatList"
       :key="i"
       class="mb-1"
     >
