@@ -2,11 +2,6 @@
 import { inject, ref, reactive, onMounted } from "vue"
 import socketManager from '../socketManager.js'
 
-import { initChatData } from './ThreadList/dummyData.js';
-const chatHistory = reactive(initChatData)
-
-import Modal from './Modal.vue'
-
 // #region global state
 const userName = inject("userName")
 // #endregion
