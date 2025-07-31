@@ -38,14 +38,31 @@ const onEnter = () => {
 </script>
 
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat サンプル</h1>
-    <div class="mt-10">
-      <p>ユーザー名</p>
-      <input type="text" class="user-name-text" v-model="inputUserName" />
-    </div>
-    <button type="button" @click="onEnter" class="button-normal">入室する</button>
-  </div>
+  <v-container class="fill-height d-flex justify-center align-center">
+    <v-card class="pa-6" elevation="10" min-width="300" max-width="500">
+      <v-card-title class="text-h5 font-weight-bold">SABI Chat</v-card-title>
+      <v-card-subtitle class="text-h6">Summary of Action-Based Insights</v-card-subtitle>
+      <v-card-text>
+        <v-form @submit.prevent="onEnter">
+          <v-text-field
+            v-model="inputUserName"
+            label="ユーザー名"
+            outlined
+            dense
+            required
+          ></v-text-field>
+          <v-btn
+            color="primary"
+            class="mt-4"
+            type="submit"
+            block
+          >
+            入室する
+          </v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <style scoped>

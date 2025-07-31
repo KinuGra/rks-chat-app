@@ -1,70 +1,150 @@
 <template>
-  <div class="thread-container" v-if="props.selectedThread">
-    <!-- 閉じるボタン -->
-    <button class="close-button" @click="goToChat">×</button>
-
-    <!-- ヘッダー -->
-    <div class="header">
-      <div>
-        <h2>{{ props.selectedThread.title }}</h2>
-        <div class="tags">
-          <span
-            v-for="tag in props.selectedThread.tags"
-            :key="tag"
-            class="tag"
-            @click="$emit('toggle-tag', tag)"
-          >
-            {{ tag }} ✕
-          </span>
+  <v-container fluid class="pa-0 fill-height" v-if="props.selectedThread">
+    <v-card class="fill-height d-flex flex-column" min-width="50%" elevation="3">
+      <!-- ヘッダー（タイトル・タグ） -->
+      <v-card-title class="d-flex justify-space-between align-start">
+        <div class="flex-grow-1">
+          <div class="text-h6 font-weight-bold text-primary mb-2">
+            {{ props.selectedThread.title }}
+          </div>
+          <div class="d-flex flex-wrap">
+            <v-chip
+              v-for="tag in props.selectedThread.tags"
+              :key="tag"
+              class="ma-1"
+              size="small"
+              color="primary"
+              variant="outlined"
+              closable
+              @click:close="$emit('toggle-tag', tag)"
+            >
+              {{ tag }}
+            </v-chip>
+          </div>
         </div>
-      </div>
-      <button @click="isAddTagModalOpen = true">タグ追加</button>
-    </div>
+        <div class="d-flex flex-column align-end ga-2">
+          <v-btn
+            color="primary"
+            variant="outlined"
+            size="small"
+            prepend-icon="mdi-tag-plus"
+            @click="isAddTagModalOpen = true"
+          >
+            タグ追加
+          </v-btn>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            @click="goToChat"
+          />
+        </div>
+      </v-card-title>
 
-    <!-- メッセージ一覧 -->
-    <div class="messages">
-      <div
-        v-for="msg in props.selectedThread.messages"
-        :key="msg.id"
-        :class="['message', msg.sender === 'user' ? 'right' : 'left']"
-      >
-        <div class="sender-label">{{ msg.sender === 'user' ? 'あなた' : msg.sender }}</div>
-        <div class="bubble">{{ msg.content }}</div>
-        <div class="timestamp">{{ new Date(msg.timestamp).toLocaleString() }}</div>
-      </div>
-    </div>
+      <v-divider />
 
-    <!-- メッセージ入力 -->
-    <div class="input-area">
-      <input
-        type="text"
-        :value="props.newMessage"
-        @input="$emit('update:newMessage', $event.target.value)"
-        @keyup.enter="$emit('send-message')"
-        placeholder="メッセージを入力"
-      />
-      <button @click="$emit('send-message')">送信</button>
-    </div>
+      <!-- メッセージ一覧 -->
+      <v-card-text class="flex-grow-1 overflow-y-auto px-4 py-2">
+        <div
+          v-for="msg in props.selectedThread.messages"
+          :key="msg.id"
+          class="d-flex mb-4"
+          :class="msg.sender === 'user' ? 'justify-end' : 'justify-start'"
+        >
+          <div
+            :class="[
+              'd-inline-block',
+              msg.sender === 'user' ? 'text-right' : 'text-left'
+            ]"
+            style="max-width: 70%;"
+          >
+            <v-chip
+              size="x-small"
+              class="mb-1"
+              :color="msg.sender === 'user' ? 'primary' : 'grey'"
+              variant="flat"
+            >
+              {{ msg.sender === 'user' ? 'あなた' : msg.sender }}
+            </v-chip>
+
+            <v-sheet
+              class="pa-3"
+              :color="msg.sender === 'user' ? 'primary' : 'grey-lighten-4'"
+              :class="msg.sender === 'user' ? 'text-white' : 'text-black'"
+              elevation="1"
+              rounded
+            >
+              {{ msg.content }}
+            </v-sheet>
+
+            <div class="text-caption text-grey mt-1">
+              {{ new Date(msg.timestamp).toLocaleString() }}
+            </div>
+          </div>
+        </div>
+      </v-card-text>
+
+      <v-divider />
+
+      <!-- メッセージ入力 -->
+      <v-card-text class="pa-4">
+        <v-row no-gutters class="align-center ga-3">
+          <v-col cols="10">
+            <v-text-field
+              :model-value="props.newMessage"
+              @update:model-value="$emit('update:newMessage', $event)"
+              @keyup.enter="$emit('send-message')"
+              placeholder="メッセージを入力..."
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              prepend-inner-icon="mdi-message-text"
+            />
+          </v-col>
+          <v-col cols="2">
+            <v-btn
+              color="primary"
+              icon="mdi-send"
+              size="large"
+              @click="$emit('send-message')"
+              :disabled="!props.newMessage?.trim()"
+            />
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
 
     <!-- タグ追加モーダル -->
-    <div v-if="isAddTagModalOpen" class="modal">
-      <h3>タグの追加</h3>
-      <input
-        type="text"
-        v-model="newTag"
-        placeholder="新しいタグ名"
-        @keyup.enter="addTag"
-        class="text-input"
-      />
-      <div class="modal-actions">
-        <button @click="addTag">追加</button>
-        <button @click="isAddTagModalOpen = false">閉じる</button>
-      </div>
-    </div>
-  </div>
+    <v-dialog v-model="isAddTagModalOpen" max-width="400">
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold">
+          <v-icon icon="mdi-tag-plus" class="mr-2" />
+          タグの追加
+        </v-card-title>
 
-  <div v-else class="no-thread">スレッドを選択してください</div>
+        <v-card-text>
+          <v-text-field
+            v-model="newTag"
+            placeholder="新しいタグ名を入力..."
+            variant="outlined"
+            density="comfortable"
+            @keyup.enter="addTag"
+            prepend-inner-icon="mdi-tag"
+            autofocus
+          />
+        </v-card-text>
+
+        <v-card-actions class="px-6 pb-4">
+          <v-spacer />
+          <v-btn text @click="isAddTagModalOpen = false">キャンセル</v-btn>
+          <v-btn color="primary" @click="addTag" :disabled="!newTag?.trim()">
+            追加
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
+
 
 <script setup>
 import { ref, inject } from 'vue'

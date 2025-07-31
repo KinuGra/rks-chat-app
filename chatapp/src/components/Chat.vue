@@ -1,25 +1,12 @@
 <script setup>
-import { inject, ref, reactive, onMounted } from "vue"
-import socketManager from '../socketManager.js'
+import { inject, ref, reactive, onMounted } from "vue";
+import socketManager from "../socketManager.js";
 
-// #region global state
-const userName = inject("userName")
-// #endregion
+const userName = inject("userName");
+const socket = socketManager.getInstance();
 
-// #region local variable
-const socket = socketManager.getInstance()
-// #endregion
-
-// #region reactive variable
-const chatContent = ref("")
-const chatList = reactive([])
-// #endregion
-
-// #region lifecycle
-onMounted(() => {
-  registerSocketEvent()
-})
-// #endregion
+const chatContent = ref("");
+const chatList = reactive([]);
 
 const form = reactive({
   message: "",
@@ -29,202 +16,208 @@ const form = reactive({
 
 const threadButtonStatus = reactive({
   isShow: false,
-})
+});
 
-// #region browser event handler
-// 投稿メッセージをサーバに送信する
+const emit = defineEmits(["toggle-thread-list"]);
+
+// 投稿
 const onPublish = () => {
   const data = {
     sender: userName.value,
     content: chatContent.value,
-  }
-  socket.emit("publishEvent", data)
-
-  // 入力欄を初期化
+    timestamp: new Date().toISOString(),
+    type: "message"
+  };
+  socket.emit("publishEvent", data);
   chatContent.value = "";
-}
+};
 
-// スレッド新規作成画面を表示
+// メモ
+const onMemo = () => {
+  if (!form.message) {
+    alert("メモの内容を入力してください。");
+    return;
+  }
+  chatList.push({
+    sender: userName.value,
+    content: form.message,
+    timestamp: new Date().toISOString(),
+    type: "memo"
+  });
+  form.message = "";
+};
+
+// スレッド作成表示
 const onShowThreadSetting = (id) => {
-  // form.threadTitle = event.target.attributes[2].nodeValue;
   form.threadTitle = "";
   form.messageId = id;
-  console.log("スレッド新規作成", id);
   threadButtonStatus.isShow = true;
-}
+};
 
-// スレッド新規作成画面を非表示
+// スレッド作成非表示
 const onCancelCreateThread = () => {
-  // form.threadTitle = event.target.attributes[2].nodeValue;
   form.threadTitle = "";
   threadButtonStatus.isShow = false;
-}
+};
 
-// メモを画面上に表示する
-const onMemo = () => {
-  // メモの内容を表示
-    if (form.message === "") {
-      alert("メモの内容を入力してください。")
-      return
-    }
-    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
-    //入力値を初期化
-    form.message = ""
-}
-
-// #endregion
-
-// #region socket event handler
-
-// サーバから受信した投稿メッセージを画面上に表示する
+// サーバーから受信
 const onReceivePublish = (data) => {
-  chatList.push(`${data.sender}さんのメッセージ：${data.content}`)
-}
-// #endregion
+  chatList.push(normalizeChat(data));
+};
 
-// サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  chatList.push(...data);
-}
+  const normalized = data.map(normalizeChat);
+  chatList.push(...normalized);
+};
 
-// #region local methods
-// イベント登録をまとめる
+// 履歴整形
+const normalizeChat = (item) => {
+  if (typeof item === "string") {
+    try {
+      const parsed = JSON.parse(item);
+      return {
+        sender: parsed.sender ?? "不明",
+        content: parsed.content ?? "",
+        timestamp: parsed.timestamp ?? new Date().toISOString(),
+        type: parsed.type ?? "message"
+      };
+    } catch {
+      return {
+        sender: "System",
+        content: item,
+        timestamp: new Date().toISOString(),
+        type: "message"
+      };
+    }
+  } else {
+    return {
+      sender: item.sender ?? "不明",
+      content: item.content ?? "",
+      timestamp: item.timestamp ?? new Date().toISOString(),
+      type: item.type ?? "message"
+    };
+  }
+};
+
+// ソケット登録
 const registerSocketEvent = () => {
-  // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
     onReceiveEnter(data);
-  })
-
-  // 投稿イベントを受け取ったら実行
-  socket.on("publishEvent", (data) => {
-    onReceivePublish(data);
-  })
-  // login時にチャット履歴を表示
-  socket.emit("getChatHistory", (history) => {
-    chatList.push(...history);
   });
 
-}
-// #endregion
-  //modal イベント
-  const emit = defineEmits(["toggle-thread-list"]);
+  socket.on("publishEvent", (data) => {
+    onReceivePublish(data);
+  });
 
+  socket.emit("getChatHistory", (history) => {
+    const normalized = history.map(normalizeChat);
+    chatList.push(...normalized);
+  });
+};
+
+onMounted(() => {
+  registerSocketEvent();
+});
 </script>
 
+
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Chat.vue</h1>
-    <v-btn @click="emit('toggle-thread-list')">スレッド一覧</v-btn>
-    <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea v-model="chatContent" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
-      <div class="mt-5">
-        <button class="button-normal" @click="onPublish">投稿</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
-      </div>
-    </div>
-    
-    <!-- 右側 -->
-    
-    <div class="chatarea">
-      <!-- <p>ログインユーザ：{{ userName }}さん</p> -->
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}
-            <!-- スレッドの有無で条件分岐 -->
-            <button class="button-normal" :text="chat" @click="onShowThreadSetting(i)">スレッドを作成</button>
-            <button class="button-normal" @click="">スレッドを表示</button>
-            
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div v-if="threadButtonStatus.isShow" class="thread-setting">
-      <input v-model="form.threadTitle" placeholder="スレッドのタイトルを入力" variant="outlined" rows="1" class="area" name="title">
-      <button class="button-normal" @click="onCreateThread">スレッドを作成</button>
-      <button class="button-normal" @click="onCancelCreateThread">キャンセル</button>
-    </div>
-    <!-- <div class="modal-wrapper"></div> -->
-    
-  <!-- 
-  <router-link to="/" class="link">
-    <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-  </router-link>
-    -->
+  <v-container class="py-6">
+    <!-- タイトル・スレッド一覧 -->
+    <v-row class="align-center mb-4">
+      <v-col cols="12" md="6">
+        <h1 class="text-h4 font-weight-medium">チャット入力</h1>
+      </v-col>
+      <v-col cols="12" md="6" class="text-md-right text-start">
+        <v-btn color="primary" @click="emit('toggle-thread-list')">
+          スレッド一覧
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- 投稿一覧（吹き出し形式） -->
+<v-card class="pa-4 mb-6" outlined>
+  <h2 class="text-h6 mb-3">投稿一覧</h2>
+
+  <div v-if="chatList.length !== 0">
+    <v-row
+      v-for="(chat, i) in chatList.slice().reverse()"
+      :key="i"
+      class="mb-4"
+    >
+      <v-col cols="12" md="8">
+        <v-card
+          :color="chat.type === 'memo' ? 'amber-lighten-4' : 'grey-lighten-3'"
+          class="pa-3"
+          elevation="2"
+        >
+          <div class="text-caption text-grey-darken-1 mb-1">
+            {{ chat.sender }} さん - {{ new Date(chat.timestamp).toLocaleString() }}
+          </div>
+          <div class="text-body-1">{{ chat.content }}</div>
+
+          <v-row class="mt-2">
+            <v-col cols="auto">
+              <v-btn size="small" color="primary" @click="onShowThreadSetting(i)">
+                スレッドを作成
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn size="small" color="secondary">スレッドを表示</v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 
-  
-  <!-- 
-  <router-link to="/" class="link">
-    <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-  </router-link>
-    -->
+  <div v-else class="text-grey">投稿がまだありません</div>
+</v-card>
+
+
+    <!-- 投稿エリア -->
+    <v-card class="pa-4 mb-6" outlined>
+      <p class="mb-3">ログインユーザ：{{ userName }} さん</p>
+
+      <v-textarea
+        v-model="chatContent"
+        label="投稿文"
+        placeholder="投稿文を入力してください"
+        rows="4"
+        auto-grow
+        variant="outlined"
+        class="mb-4"
+      ></v-textarea>
+
+      <v-row>
+        <v-col cols="auto">
+          <v-btn color="success" @click="onPublish">投稿</v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
+
+    <!-- スレッド作成フォーム -->
+    <v-card
+      v-if="threadButtonStatus.isShow"
+      class="pa-4"
+      color="grey-lighten-4"
+      outlined
+    >
+      <v-text-field
+        v-model="form.threadTitle"
+        label="スレッドのタイトル"
+        placeholder="スレッドのタイトルを入力"
+        variant="outlined"
+        class="mb-3"
+      ></v-text-field>
+      <v-row>
+        <v-col cols="auto">
+          <v-btn color="success" @click="onCreateThread">スレッドを作成</v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn color="error" @click="onCancelCreateThread">キャンセル</v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-container>
 </template>
-
-<style scoped>
-.link {
-  text-decoration: none;
-}
-
-.area {
-  width: 500px;
-  border: 1px solid #000;
-  margin-top: 8px;
-}
-
-.item {
-  display: block;
-}
-
-.util-ml-8px {
-  margin-left: 8px;
-}
-
-.button-exit {
-  color: #000;
-  margin-top: 8px;
-}
-
-.chatlist-flex>div {
-  flex: 1;
-}
-
-.chatarea {
-  overflow-y: scroll;
-  /* height: 72vh; */
-}
-
-.chat-textarea {
-  display: flex;
-}
-
-.chatlist-flex>div:first-child {
-  border-right: 1px solid #000;
-}
-
-.chatlist-flex {
-  width: 100%;
-  height: 82vh;
-  display: flex;
-}
-
-.thread-setting {
-  position: absolute;
-  z-index: 3;
-  background-color: #bbb;
-  width: 480px;
-  height: 120px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-
-  text-align: center;
-}
-
-.thread-setting input {
-  display: block;
-  width: 80%;
-  margin: 24px 10% 16px;
-}
-
-</style>

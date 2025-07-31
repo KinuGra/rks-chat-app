@@ -114,26 +114,37 @@ const toggleThreadList = () => {
 </script>
 
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
+  <v-app>
+    <!-- 青いナビゲーションバー -->
+    <v-app-bar app color="primary" dark>
+      <v-toolbar-title>SABI Chat</v-toolbar-title>
+      <router-link to="/">
+        <v-btn color="error" variant="flat" @click="onExit">
+          退室する
+        </v-btn>
+      </router-link>
+    </v-app-bar>
 
-    <div v-if="$route.name === 'thread'">
-      <div class="flex">
-        <Chat @toggle-thread-list="toggleThreadList"/>
-        <Thread :selectedThread="selectedThread" :newMessage="newMessage" @update:newMessage="val => newMessage = val"
-          @send-message="handleSendMessage" @toggle-tag="handleToggleTag" />
-      </div>
-      <ThreadList v-if="isThreadListShown" :threads="threads" @select-thread="handleSelectThread" />
-    </div>
-    <Chat v-else />
+    <!-- メインコンテンツ -->
+    <v-main>
+      <v-container class="py-8">
+        <h1 class="text-h4 font-weight-medium mb-6"></h1>
 
+        <div v-if="$route.name === 'thread'" class="d-flex">
+          <Chat @toggle-thread-list="toggleThreadList" />
+          <Thread :selectedThread="selectedThread" :newMessage="newMessage" @update:newMessage="val => newMessage = val"
+            @send-message="handleSendMessage" @toggle-tag="handleToggleTag" />
+        </div>
+        <Chat v-else />
 
+        <!-- スレッドリスト表示 -->
+        <ThreadList v-if="isThreadListShown" :threads="threads" @select-thread="handleSelectThread" />
 
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
-  </div>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
+
 
 <style scoped>
 .link {
