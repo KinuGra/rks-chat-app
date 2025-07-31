@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref, reactive, onMounted } from "vue";
 import socketManager from "../socketManager.js";
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const userName = inject("userName");
 const socket = socketManager.getInstance();
@@ -32,47 +33,34 @@ const onPublish = () => {
   chatContent.value = "";
 };
 
-// メモ
-const onMemo = () => {
-  if (!form.message) {
-    alert("メモの内容を入力してください。");
-    return;
-  }
-  chatList.push({
-    sender: userName.value,
-    content: form.message,
-    timestamp: new Date().toISOString(),
-    type: "memo"
-  });
-  form.message = "";
-};
-
-// スレッド作成表示
+// スレッド作成フォームを表示する
 const onShowThreadSetting = (id) => {
   form.threadTitle = "";
   form.messageId = id;
   threadButtonStatus.isShow = true;
 };
 
-// スレッド作成非表示
+// スレッド作成フォームを非表示にする
 const onCancelCreateThread = () => {
   form.threadTitle = "";
   threadButtonStatus.isShow = false;
 };
 
-// サーバーから受信
+
+// サーバーから新しい投稿を受信したときの処理
 const onReceivePublish = (data) => {
   chatList.splice(0);
   chatList.push(...data);
 };
 
-// 入室時にサーバーからchatHistoryを受信
+
+// 入室時にサーバーからチャット履歴を受信したときの処理
 const onReceiveEnter = (data) => {
   chatList.splice(0);
   chatList.push(...data);
 };
 
-// 履歴整形
+// サーバーから受け取ったチャット履歴を正規化する
 const normalizeChat = (item) => {
   if (typeof item === "string") {
     try {
@@ -101,22 +89,26 @@ const normalizeChat = (item) => {
   }
 };
 
-// ソケット登録
+// ソケットイベントの登録
 const registerSocketEvent = () => {
+  // 入室イベント受信
   socket.on("enterEvent", (data) => {
     onReceiveEnter(data);
   });
 
+  // 新規投稿受信
   socket.on("publishEvent", (data) => {
     onReceivePublish(data);
   });
 
+  // チャット履歴取得
   socket.emit("getChatHistory", (history) => {
     const normalized = history.map(normalizeChat);
     chatList.push(...normalized);
   });
 };
 
+// マウント時にソケットイベントを登録し、入室イベントを送信
 onMounted(() => {
   registerSocketEvent();
   socket.emit("enterEvent", null);
@@ -144,10 +136,11 @@ onMounted(() => {
 
   <div v-if="chatList.length !== 0">
     <v-row
-      v-for="(chat, i) in chatList.slice().reverse()"
+      v-for="(chat, i) in chatList"
       :key="i"
-      class="mb-4"
+      class="mb-1"
     >
+      <!-- メッセージの表示 -->
       <div v-if="chat.type === 'individual'">
         <v-col cols="12" md="8">
           <v-card
@@ -159,17 +152,29 @@ onMounted(() => {
               {{ chat.sender }} さん - {{ new Date(chat.timestamp).toLocaleString() }}
             </div>
             <div class="text-body-1">{{ chat.content }}</div>
+            <v-btn size="x-small" color="primary" @click="onShowThreadSetting(i)">
+              スレッド作成
+            </v-btn>
+          </v-card>
+        </v-col>
+      </div>
 
-            <v-row class="mt-2">
-              <v-col cols="auto">
-                <v-btn size="small" color="primary" @click="onShowThreadSetting(i)">
-                  スレッドを作成
-                </v-btn>
-              </v-col>
-              <v-col cols="auto">
-                <v-btn size="small" color="secondary">スレッドを表示</v-btn>
-              </v-col>
-            </v-row>
+      <!-- スレッドの表示 -->
+      <div v-else-if="chat.type === 'thread'">
+        <v-col cols="12" md="8">
+          <v-card
+            :color="chat.type === 'memo' ? 'amber-lighten-4' : 'grey-lighten-3'"
+            class="pa-3"
+            elevation="2"
+          >
+          <div class="text-caption text-grey-darken-1 mb-1">
+            スレッド - {{ new Date(chat.messages[0].timestamp).toLocaleString() }}
+          </div>
+            <div>
+            <span class="text-body-1">{{ chat.title }}</span>
+            <!-- <v-btn size="small" color="secondary">スレッドを表示</v-btn> -->
+          </div>
+          <v-btn class="text-right" size="x-small" color="secondary"><i class="fas fa-comments"></i></v-btn>
           </v-card>
         </v-col>
       </div>
