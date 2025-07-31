@@ -7,7 +7,6 @@ export default function publishEvent(io, socket) {
         const massage = new Message(data.sender, data.content);
         chatHistory.push(massage);
         io.sockets.emit("publishEvent", data)
-        console.log("chatHistory", chatHistory);
     })
 }
 
@@ -20,8 +19,6 @@ export function enterEvent(io, socket) {
       type: msg.type,
       timestamp: msg.timestamp,
     }));
-    console.log(serializedHistory);
-
     socket.emit("enterEvent", serializedHistory);
   });
 }

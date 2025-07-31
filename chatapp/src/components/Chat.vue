@@ -38,7 +38,6 @@ const onPublish = () => {
     sender: userName.value,
     content: chatContent.value,
   }
-  console.log("onPublish", userName.value)
   socket.emit("publishEvent", data)
 
   // 入力欄を初期化
@@ -50,7 +49,7 @@ const onShowThreadSetting = (id) => {
   // form.threadTitle = event.target.attributes[2].nodeValue;
   form.threadTitle = "";
   form.messageId = id;
-  console.log(id);
+  console.log("スレッド新規作成", id);
   threadButtonStatus.isShow = true;
 }
 
