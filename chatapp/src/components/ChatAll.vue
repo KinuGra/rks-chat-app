@@ -101,6 +101,16 @@ const registerSocketEvent = () => {
   })
 }
 // #endregion
+
+//modal event
+const isThreadListShown = ref(false);
+
+const toggleThreadList = () => {
+  isThreadListShown.value = !isThreadListShown.value;
+}
+
+// #end modal event
+
 </script>
 
 <template>
@@ -109,11 +119,11 @@ const registerSocketEvent = () => {
 
     <div v-if="$route.name === 'thread'">
       <div class="flex">
-        <Chat />
+        <Chat @toggle-thread-list="toggleThreadList"/>
         <Thread :selectedThread="selectedThread" :newMessage="newMessage" @update:newMessage="val => newMessage = val"
           @send-message="handleSendMessage" @toggle-tag="handleToggleTag" />
       </div>
-      <ThreadList :threads="threads" @select-thread="handleSelectThread" />
+      <ThreadList v-if="isThreadListShown" :threads="threads" @select-thread="handleSelectThread" />
     </div>
     <Chat v-else />
 
