@@ -1,9 +1,10 @@
+let message_id = 1;
 
 // メッセージを表すクラス
 export class Message{
-  constructor(id, content, sender) {
+  constructor(content, sender) {
     const now = new Date();
-    this.id = id;
+    this.id = message_id++;
     this.content = content;
     this.sender = sender;
     this.type = "individual"
