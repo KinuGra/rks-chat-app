@@ -106,14 +106,15 @@ const registerSocketEvent = () => {
 
 }
 // #endregion
+  //modal イベント
+  const emit = defineEmits(["toggle-thread-list"]);
 
-  
 </script>
 
 <template>
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3 font-weight-medium">Chat.vue</h1>
-    <v-btn @click="">スレッド一覧</v-btn>
+    <v-btn @click="emit('toggle-thread-list')">スレッド一覧</v-btn>
     <div class="mt-10">
       <p>ログインユーザ：{{ userName }}さん</p>
       <textarea v-model="chatContent" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
