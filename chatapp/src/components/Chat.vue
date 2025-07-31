@@ -2,6 +2,11 @@
 import { inject, ref, reactive, onMounted } from "vue"
 import socketManager from '../socketManager.js'
 
+import { initChatData } from './ThreadList/dummyData.js';
+const chatHistory = reactive(initChatData)
+
+import Modal from './Modal.vue'
+
 // #region global state
 const userName = inject("userName")
 // #endregion
@@ -21,6 +26,16 @@ onMounted(() => {
 })
 // #endregion
 
+const form = reactive({
+  message: "",
+  threadTitle: "",
+  messageId: ""
+});
+
+const threadButtonStatus = reactive({
+  isShow: false,
+})
+
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
@@ -35,6 +50,28 @@ const onPublish = () => {
   chatContent.value = "";
 }
 
+// スレッド新規作成画面を表示
+const onShowThreadSetting = (id) => {
+  // form.threadTitle = event.target.attributes[2].nodeValue;
+  form.threadTitle = "";
+  form.messageId = id;
+  console.log(id);
+  threadButtonStatus.isShow = true;
+}
+
+// メモを画面上に表示する
+const onMemo = () => {
+  // メモの内容を表示
+    if (form.message === "") {
+      alert("メモの内容を入力してください。")
+      return
+    }
+    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
+    //入力値を初期化
+    form.message = ""
+}
+
+// #endregion
 
 // #region socket event handler
 
@@ -68,6 +105,8 @@ const registerSocketEvent = () => {
 
 }
 // #endregion
+
+  
 </script>
 
 <template>
@@ -80,16 +119,43 @@ const registerSocketEvent = () => {
         <button class="button-normal" @click="onPublish">投稿</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
+    </div>
+    
+    <!-- 右側 -->
+    
+    <div class="chatarea">
+      <!-- <p>ログインユーザ：{{ userName }}さん</p> -->
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}
+            <!-- スレッドの有無で条件分岐 -->
+            <button class="button-normal" :text="chat" @click="onShowThreadSetting(i)">スレッドを作成</button>
+            <button class="button-normal" @click="">スレッドを表示</button>
+            
+          </li>
         </ul>
       </div>
     </div>
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
+    <div v-if="threadButtonStatus.isShow" class="thread-setting">
+      <input v-model="form.threadTitle" placeholder="スレッドのタイトルを入力" variant="outlined" rows="1" class="area" name="title">
+      <button class="button-normal" @click="onCreateThread">スレッドを作成</button>
+      <button class="button-normal" @click="onCancelCreateThread">キャンセル</button>
+    </div>
+    <!-- <div class="modal-wrapper"></div> -->
+    
+  <!-- 
+  <router-link to="/" class="link">
+    <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
+  </router-link>
+    -->
   </div>
+
+  
+  <!-- 
+  <router-link to="/" class="link">
+    <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
+  </router-link>
+    -->
 </template>
 
 <style scoped>
@@ -115,4 +181,47 @@ const registerSocketEvent = () => {
   color: #000;
   margin-top: 8px;
 }
+
+.chatlist-flex>div {
+  flex: 1;
+}
+
+.chatarea {
+  overflow-y: scroll;
+  /* height: 72vh; */
+}
+
+.chat-textarea {
+  display: flex;
+}
+
+.chatlist-flex>div:first-child {
+  border-right: 1px solid #000;
+}
+
+.chatlist-flex {
+  width: 100%;
+  height: 82vh;
+  display: flex;
+}
+
+.thread-setting {
+  position: absolute;
+  z-index: 3;
+  background-color: #bbb;
+  width: 480px;
+  height: 120px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+
+  text-align: center;
+}
+
+.thread-setting input {
+  display: block;
+  width: 80%;
+  margin: 24px 10% 16px;
+}
+
 </style>
