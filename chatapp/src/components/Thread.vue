@@ -1,138 +1,111 @@
-<script setup>
-import { inject, ref, reactive, onMounted } from "vue"
-import socketManager from '../socketManager.js'
-
-// #region global state
-const userName = inject("userName")
-// #endregion
-
-// #region local variable
-const socket = socketManager.getInstance()
-// #endregion
-
-// #region reactive variable
-const chatContent = ref("")
-const chatList = reactive([])
-// #endregion
-
-// #region lifecycle
-onMounted(() => {
-  registerSocketEvent()
-})
-// #endregion
-
-const form = reactive({
-  message: "",
-});
-
-// #region browser event handler
-// 投稿メッセージをサーバに送信する
-const onPublish = () => {
-  socket.emit("publishEvent", { userName: userName.value, message: form.message })
-
-  // 入力欄を初期化
-}
-
-// 退室メッセージをサーバに送信する
-const onExit = () => {
-  socket.emit("exitEvent", { userName: userName.value })
-}
-
-// メモを画面上に表示する
-const onMemo = () => {
-  // メモの内容を表示
-    if (form.message === "") {
-      alert("メモの内容を入力してください。")
-      return
-    }
-    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
-    //入力値を初期化
-    form.message = ""
-}
-// #endregion
-
-// #region socket event handler
-// サーバから受信した入室メッセージ画面上に表示する
-const onReceiveEnter = (data) => {
-  chatList.push(data.userName + "さんが入室しました。");
-}
-
-// サーバから受信した退室メッセージを受け取り画面上に表示する
-const onReceiveExit = (data) => {
-  chatList.push(data.userName + "さんが退室しました。")
-}
-
-// サーバから受信した投稿メッセージを画面上に表示する
-const onReceivePublish = (data) => {
-  chatList.push(`${data.userName}さんのメッセージ：${data.message}`)
-  form.message = "";
-}
-// #endregion
-
-// #region local methods
-// イベント登録をまとめる
-const registerSocketEvent = () => {
-  // 入室イベントを受け取ったら実行
-  socket.on("enterEvent", (data) => {
-    onReceiveEnter(data);
-  })
-
-  // 退室イベントを受け取ったら実行
-  socket.on("exitEvent", (data) => {
-    onReceiveExit(data)
-  })
-
-  // 投稿イベントを受け取ったら実行
-  socket.on("publishEvent", (data) => {
-    onReceivePublish(data);
-  })
-}
-// #endregion
-</script>
-
 <template>
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Thread.vue</h1>
-    <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea v-model="form.message" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
-      <div class="mt-5">
-        <button class="button-normal" @click="onPublish">投稿</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+  <div class="thread-container" v-if="props.selectedThread">
+    <!-- 閉じるボタン -->
+    <button class="close-button" @click="goToChat">×</button>
+
+    <!-- ヘッダー -->
+    <div class="header">
+      <div>
+        <h2>{{ props.selectedThread.title }}</h2>
+        <div class="tags">
+          <span
+            v-for="tag in props.selectedThread.tags"
+            :key="tag"
+            class="tag"
+            @click="$emit('toggle-tag', tag)"
+          >
+            {{ tag }} ✕
+          </span>
+        </div>
       </div>
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}</li>
-        </ul>
+      <button @click="isAddTagModalOpen = true">タグ追加</button>
+    </div>
+
+    <!-- メッセージ一覧 -->
+    <div class="messages">
+      <div
+        v-for="msg in props.selectedThread.messages"
+        :key="msg.id"
+        :class="['message', msg.sender === 'user' ? 'right' : 'left']"
+      >
+        <div class="sender-label">{{ msg.sender === 'user' ? 'あなた' : msg.sender }}</div>
+        <div class="bubble">{{ msg.content }}</div>
+        <div class="timestamp">{{ new Date(msg.timestamp).toLocaleString() }}</div>
       </div>
     </div>
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
+
+    <!-- メッセージ入力 -->
+    <div class="input-area">
+      <input
+        type="text"
+        :value="props.newMessage"
+        @input="$emit('update:newMessage', $event.target.value)"
+        @keyup.enter="$emit('send-message')"
+        placeholder="メッセージを入力"
+      />
+      <button @click="$emit('send-message')">送信</button>
+    </div>
+
+    <!-- タグ追加モーダル -->
+    <div v-if="isAddTagModalOpen" class="modal">
+      <h3>タグの追加</h3>
+      <input
+        type="text"
+        v-model="newTag"
+        placeholder="新しいタグ名"
+        @keyup.enter="addTag"
+        class="text-input"
+      />
+      <div class="modal-actions">
+        <button @click="addTag">追加</button>
+        <button @click="isAddTagModalOpen = false">閉じる</button>
+      </div>
+    </div>
   </div>
+
+  <div v-else class="no-thread">スレッドを選択してください</div>
 </template>
 
-<style scoped>
-.link {
-  text-decoration: none;
+<script setup>
+import { ref, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import socketManager from '../socketManager.js'
+
+const props = defineProps({
+  selectedThread: Object,
+  newMessage: String
+})
+
+defineEmits([
+  'update:newMessage',
+  'send-message',
+  'toggle-tag'
+])
+
+const router = useRouter()
+const socket = socketManager.getInstance()
+const userName = inject('userName')
+
+const isAddTagModalOpen = ref(false)
+const newTag = ref('')
+
+function goToChat() {
+  socket.emit('exitEvent', { userName: userName.value })
+  router.push('/chat/')
 }
 
-.area {
-  width: 500px;
-  border: 1px solid #000;
-  margin-top: 8px;
+function addTag() {
+  const tag = newTag.value.trim()
+  if (!tag) {
+    alert('タグ名を入力してください。')
+    return
+  }
+  if (props.selectedThread.tags.includes(tag)) {
+    alert('このタグは既に存在します。')
+    return
+  }
+  props.selectedThread.tags.push(tag)
+  newTag.value = ''
+  isAddTagModalOpen.value = false
 }
-
-.item {
-  display: block;
-}
-
-.util-ml-8px {
-  margin-left: 8px;
-}
-
-.button-exit {
-  color: #000;
-  margin-top: 8px;
-}
-</style>
+</script>
