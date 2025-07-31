@@ -21,53 +21,33 @@ onMounted(() => {
 })
 // #endregion
 
-const form = reactive({
-  message: "",
-});
-
 // #region browser event handler
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  socket.emit("publishEvent", { userName: userName.value, message: form.message })
+  const data = {
+    sender: userName.value,
+    content: chatContent.value,
+  }
+  console.log("onPublish", userName.value)
+  socket.emit("publishEvent", data)
 
   // 入力欄を初期化
+  chatContent.value = "";
 }
 
-// 退室メッセージをサーバに送信する
-const onExit = () => {
-  socket.emit("exitEvent", { userName: userName.value })
-}
-
-// メモを画面上に表示する
-const onMemo = () => {
-  // メモの内容を表示
-    if (form.message === "") {
-      alert("メモの内容を入力してください。")
-      return
-    }
-    chatList.push(`${userName.value}さんのメモ: ${form.message}`)
-    //入力値を初期化
-    form.message = ""
-}
-// #endregion
 
 // #region socket event handler
-// サーバから受信した入室メッセージ画面上に表示する
-const onReceiveEnter = (data) => {
-  chatList.push(data.userName + "さんが入室しました。");
-}
-
-// サーバから受信した退室メッセージを受け取り画面上に表示する
-const onReceiveExit = (data) => {
-  chatList.push(data.userName + "さんが退室しました。")
-}
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push(`${data.userName}さんのメッセージ：${data.message}`)
-  form.message = "";
+  chatList.push(`${data.sender}さんのメッセージ：${data.content}`)
 }
 // #endregion
+
+// サーバから受信した入室メッセージ画面上に表示する
+const onReceiveEnter = (data) => {
+  chatList.push(...data);
+}
 
 // #region local methods
 // イベント登録をまとめる
@@ -77,15 +57,15 @@ const registerSocketEvent = () => {
     onReceiveEnter(data);
   })
 
-  // 退室イベントを受け取ったら実行
-  socket.on("exitEvent", (data) => {
-    onReceiveExit(data)
-  })
-
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data);
   })
+  // login時にチャット履歴を表示
+  socket.emit("getChatHistory", (history) => {
+    chatList.push(...history);
+  });
+
 }
 // #endregion
 </script>
@@ -95,7 +75,7 @@ const registerSocketEvent = () => {
     <h1 class="text-h3 font-weight-medium">Chat.vue</h1>
     <div class="mt-10">
       <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea v-model="form.message" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
+      <textarea v-model="chatContent" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
       <div class="mt-5">
         <button class="button-normal" @click="onPublish">投稿</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
