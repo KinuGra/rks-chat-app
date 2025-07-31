@@ -4,7 +4,7 @@ import socketManager from '../socketManager.js'
 
 import Chat from './Chat.vue'
 import Thread from './Thread.vue'
-import ThreadList from './ThreadList.vue'
+import ThreadList from './ThreadList/ThreadList.vue'
 
 // #region global state
 const userName = inject("userName")

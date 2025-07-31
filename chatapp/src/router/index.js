@@ -3,7 +3,7 @@ import Login from "../components/Login.vue"
 import ChatAll from "../components/ChatAll.vue"
 import Chat from "../components/Chat.vue"
 import Thread from "../components/Thread.vue"
-import ThreadList from "../components/ThreadList.vue"
+import ThreadList from "../components/ThreadList/ThreadList.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -41,6 +41,9 @@ const router = createRouter({
           next({ name:"login" })
         }
       },
+    },{
+      path: "/test/threadlist",
+      component: ThreadList
     }
   ],
 })
