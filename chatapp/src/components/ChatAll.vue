@@ -107,7 +107,7 @@ const registerSocketEvent = () => {
     </div>
     <Chat v-else />
 
-    <router-link to="/thread" class="thread">あああ</router-link>
+    
 
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
