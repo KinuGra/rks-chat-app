@@ -2,6 +2,10 @@
 import { inject, ref, reactive, onMounted } from "vue"
 import socketManager from '../socketManager.js'
 
+import Chat from './Chat.vue'
+import Thread from './Thread.vue'
+import ThreadList from './ThreadList.vue'
+
 // #region global state
 const userName = inject("userName")
 // #endregion
@@ -92,20 +96,19 @@ const registerSocketEvent = () => {
 
 <template>
   <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Chat.vue</h1>
-    <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea v-model="form.message" variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area"></textarea>
-      <div class="mt-5">
-        <button class="button-normal" @click="onPublish">投稿</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+    <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
+
+    <div v-if="$route.name === 'thread'">
+      <div class="flex">
+        <Chat />
+        <Thread />
       </div>
-      <div class="mt-5" v-if="chatList.length !== 0">
-        <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}</li>
-        </ul>
-      </div>
+      <ThreadList />
     </div>
+    <Chat v-else />
+
+    <router-link to="/thread" class="thread">あああ</router-link>
+
     <router-link to="/" class="link">
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
@@ -134,5 +137,13 @@ const registerSocketEvent = () => {
 .button-exit {
   color: #000;
   margin-top: 8px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex>div {
+  flex: 1;
 }
 </style>

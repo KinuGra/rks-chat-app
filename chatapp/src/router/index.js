@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router"
-import Chat from "../components/Chat.vue"
 import Login from "../components/Login.vue"
+import ChatAll from "../components/ChatAll.vue"
+import Chat from "../components/Chat.vue"
+import Thread from "../components/Thread.vue"
+import ThreadList from "../components/ThreadList.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,9 +15,27 @@ const router = createRouter({
     },{
       path: "/chat/",
       name: "chat",
-      component: Chat,
+      component: ChatAll,
+      children: [
+        {
+          path: '',
+          name: 'ChatOnly',
+          component: Chat
+        }
+      ],
       beforeEnter: (to, from, next) => {
-        if(from.name === "login"){
+        if(from.name === "login"||"thread"){
+          next()
+        } else {
+          next({ name:"login" })
+        }
+      },
+    },{
+      path: "/thread/",
+      name: "thread",
+      component: ChatAll,
+      beforeEnter: (to, from, next) => {
+        if(from.name === "login"||"chat"){
           next()
         } else {
           next({ name:"login" })
