@@ -65,9 +65,9 @@ const onReceivePublish = (data) => {
   chatList.push(normalizeChat(data));
 };
 
+// 入室時にサーバーからchatHistoryを受信
 const onReceiveEnter = (data) => {
-  const normalized = data.map(normalizeChat);
-  chatList.push(...normalized);
+  chatList.push(...data);
 };
 
 // 履歴整形
@@ -135,7 +135,7 @@ onMounted(() => {
       </v-col>
     </v-row>
 
-    <!-- 投稿一覧（吹き出し形式） -->
+<!-- 投稿一覧（吹き出し形式） -->
 <v-card class="pa-4 mb-6" outlined>
   <h2 class="text-h6 mb-3">投稿一覧</h2>
 
