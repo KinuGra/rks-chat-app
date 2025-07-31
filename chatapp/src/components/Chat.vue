@@ -45,6 +45,19 @@ const onPublish = () => {
   chatContent.value = "";
 }
 
+// 新規追加するスレッドの内容をサーバに送信する
+const onCreateThread = () => {
+  const data = {
+    title: form.threadTitle,
+    messageId: form.messageId,
+  }
+  console.log(data)
+  socket.emit("createThread", data)
+
+  // 入力欄を初期化
+  chatContent.value = "";
+}
+
 // スレッド新規作成画面を表示
 const onShowThreadSetting = (id) => {
   // form.threadTitle = event.target.attributes[2].nodeValue;
@@ -104,7 +117,7 @@ const registerSocketEvent = () => {
   socket.emit("getChatHistory", (history) => {
     chatList.push(...history);
   });
-
+  
 }
 // #endregion
 
@@ -131,7 +144,7 @@ const registerSocketEvent = () => {
         <ul>
           <li class="item mt-4" v-for="(chat, i) in chatList.slice().reverse()" :key="i">{{ chat }}
             <!-- スレッドの有無で条件分岐 -->
-            <button class="button-normal" :text="chat" @click="onShowThreadSetting(i)">スレッドを作成</button>
+            <button class="button-normal" :text="chat" @click="onShowThreadSetting(chat.id)">スレッドを作成</button>
             <button class="button-normal" @click="">スレッドを表示</button>
             
           </li>
