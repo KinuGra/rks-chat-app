@@ -4,9 +4,9 @@ import { chatHistory } from "./core.js";
 // 投稿メッセージを送信する
 export default function publishEvent(io, socket) {
     socket.on("publishEvent", (data) => {
-        const massage = new Message(data.sender, data.content);
+        const massage = new Message(data.content, data.sender);
         chatHistory.push(massage);
-        io.sockets.emit("publishEvent", data)
+        io.sockets.emit("publishEvent", chatHistory)
     })
 }
 
@@ -14,6 +14,7 @@ export default function publishEvent(io, socket) {
 export function enterEvent(io, socket) {
   socket.on("enterEvent", (data) => {
     socket.emit("enterEvent", chatHistory);
+    console.log(chatHistory);
   });
 }
 

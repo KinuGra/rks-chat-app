@@ -62,11 +62,13 @@ const onCancelCreateThread = () => {
 
 // サーバーから受信
 const onReceivePublish = (data) => {
-  chatList.push(normalizeChat(data));
+  chatList.splice(0);
+  chatList.push(...data);
 };
 
 // 入室時にサーバーからchatHistoryを受信
 const onReceiveEnter = (data) => {
+  chatList.splice(0);
   chatList.push(...data);
 };
 
@@ -117,6 +119,7 @@ const registerSocketEvent = () => {
 
 onMounted(() => {
   registerSocketEvent();
+  socket.emit("enterEvent", null);
 });
 </script>
 
@@ -145,29 +148,31 @@ onMounted(() => {
       :key="i"
       class="mb-4"
     >
-      <v-col cols="12" md="8">
-        <v-card
-          :color="chat.type === 'memo' ? 'amber-lighten-4' : 'grey-lighten-3'"
-          class="pa-3"
-          elevation="2"
-        >
-          <div class="text-caption text-grey-darken-1 mb-1">
-            {{ chat.sender }} さん - {{ new Date(chat.timestamp).toLocaleString() }}
-          </div>
-          <div class="text-body-1">{{ chat.content }}</div>
+      <div v-if="chat.type === 'individual'">
+        <v-col cols="12" md="8">
+          <v-card
+            :color="chat.type === 'memo' ? 'amber-lighten-4' : 'grey-lighten-3'"
+            class="pa-3"
+            elevation="2"
+          >
+            <div class="text-caption text-grey-darken-1 mb-1">
+              {{ chat.sender }} さん - {{ new Date(chat.timestamp).toLocaleString() }}
+            </div>
+            <div class="text-body-1">{{ chat.content }}</div>
 
-          <v-row class="mt-2">
-            <v-col cols="auto">
-              <v-btn size="small" color="primary" @click="onShowThreadSetting(i)">
-                スレッドを作成
-              </v-btn>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn size="small" color="secondary">スレッドを表示</v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-col>
+            <v-row class="mt-2">
+              <v-col cols="auto">
+                <v-btn size="small" color="primary" @click="onShowThreadSetting(i)">
+                  スレッドを作成
+                </v-btn>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn size="small" color="secondary">スレッドを表示</v-btn>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+      </div>
     </v-row>
   </div>
 
