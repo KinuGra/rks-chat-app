@@ -54,6 +54,13 @@ const onShowThreadSetting = (id) => {
   threadButtonStatus.isShow = true;
 }
 
+// スレッド新規作成画面を非表示
+const onCancelCreateThread = () => {
+  // form.threadTitle = event.target.attributes[2].nodeValue;
+  form.threadTitle = "";
+  threadButtonStatus.isShow = false;
+}
+
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
