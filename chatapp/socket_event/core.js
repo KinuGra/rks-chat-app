@@ -1,3 +1,5 @@
+import { initChatData } from "./data/initData";
+
 let message_id = 1;
 
 // メッセージを表すクラス
@@ -25,4 +27,7 @@ export class Thread {
 // スレッドを集めたリスト
 export const threads = [];
 // チャット履歴を集めたリスト
-export const chatHistory = [];
+export const chatHistory = []; 
+
+// ダミーデータ追加
+chatHistory.push(...initChatData);
