@@ -4,7 +4,7 @@ import socketManager from '../socketManager.js'
 
 import Chat from './Chat.vue'
 import Thread from './Thread.vue'
-import ThreadList from './ThreadList/ThreadList.vue'
+import ThreadListModal from './ThreadList/ThreadList.vue'
 import { initChatData } from './ThreadList/dummyData.js'
 
 const threads = ref(initChatData)
@@ -13,6 +13,7 @@ const newMessage = ref("")
 
 const handleSelectThread = (thread) => {
   selectedThread.value = thread
+  emit("select-thread", thread);
 }
 
 // #region global state
@@ -115,66 +116,57 @@ const toggleThreadList = () => {
 
 <template>
   <v-app>
-    <!-- 青いナビゲーションバー -->
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>SABI Chat</v-toolbar-title>
       <router-link to="/">
-        <v-btn color="error" variant="flat" @click="onExit">
-          退室する
-        </v-btn>
+        <v-btn color="error" variant="flat" @click="onExit">退室する</v-btn>
       </router-link>
     </v-app-bar>
 
-    <!-- メインコンテンツ -->
     <v-main>
-      <v-container class="py-8">
-        <h1 class="text-h4 font-weight-medium mb-6"></h1>
+      <div class="main-wrapper">
 
-        <div v-if="$route.name === 'thread'" class="d-flex">
-          <Chat @toggle-thread-list="toggleThreadList" />
-          <Thread :selectedThread="selectedThread" :newMessage="newMessage" @update:newMessage="val => newMessage = val"
-            @send-message="handleSendMessage" @toggle-tag="handleToggleTag" />
+        <div v-if="$route.name === 'thread'" class="chat-thread-wrapper">
+          <Chat class="chat-panel" @toggle-thread-list="toggleThreadList" @select-thread="handleSelectThread" />
+          <Thread class="thread-panel" :selectedThread="selectedThread" :newMessage="newMessage"
+            @update:newMessage="val => newMessage = val" @send-message="handleSendMessage"
+            @toggle-tag="handleToggleTag" />
         </div>
-        <Chat v-else />
 
-        <!-- スレッドリスト表示 -->
-        <ThreadList v-if="isThreadListShown" :threads="threads" @select-thread="handleSelectThread" />
+        <Chat v-else class="chat-panel" />
 
-      </v-container>
+        <ThreadListModal v-model:showModal="isThreadListShown" @select-thread="handleSelectThread" />
+
+      </div>
     </v-main>
   </v-app>
 </template>
 
-
 <style scoped>
-.link {
-  text-decoration: none;
+.main-wrapper {
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.area {
-  width: 500px;
-  border: 1px solid #000;
-  margin-top: 8px;
-}
-
-.item {
-  display: block;
-}
-
-.util-ml-8px {
-  margin-left: 8px;
-}
-
-.button-exit {
-  color: #000;
-  margin-top: 8px;
-}
-
-.flex {
+.chat-thread-wrapper {
   display: flex;
+  width: 100%;
+  gap: 16px;
 }
 
-.flex>div {
-  flex: 1;
+.chat-panel {
+  flex: 0 0 40%;
+  min-width: 0;
+}
+
+.thread-panel {
+  flex: 0 0 60%;
+  min-width: 60%;
+}
+
+
+h1 {
+  margin: 0 0 16px 0;
 }
 </style>
