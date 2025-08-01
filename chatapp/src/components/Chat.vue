@@ -138,13 +138,13 @@ const registerSocketEvent = () => {
 // マウント時にソケットイベントを登録し、入室イベントを送信
 onMounted(() => {
   // localStorageから取得（なければinjectされたもの）
-  const savedName = localStorage.getItem("userName");
-  if (savedName) {
-    userName.value = savedName;
-  } else if (injectedUserName?.value) {
-    userName.value = injectedUserName.value;
-    localStorage.setItem("userName", injectedUserName.value);
-  }
+  // const savedName = localStorage.getItem("userName");
+  // if (savedName) {
+  //   userName.value = savedName;
+  // } else if (injectedUserName?.value) {
+  //   userName.value = injectedUserName.value;
+  //   localStorage.setItem("userName", injectedUserName.value);
+  // }
   registerSocketEvent();
   socket.emit("enterEvent", null);
 });
