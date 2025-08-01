@@ -9,6 +9,8 @@ const socket = socketManager.getInstance();
 
 const chatContent = ref("");
 const chatList = reactive([]);
+const selectedThreadId = ref(null);
+
 
 const form = reactive({
   message: "",
@@ -20,7 +22,17 @@ const threadButtonStatus = reactive({
   isShow: false,
 });
 
-const emit = defineEmits(["toggle-thread-list"]);
+const emit = defineEmits(["toggle-thread-list", "select-thread"]);
+
+// chat: 選択されたスレッドデータ
+const selectThread = (chat) => {
+  selectedThreadId.value = chat.id;
+  console.log("選択されたスレッド:", chat);
+  emit('select-thread', chat);
+  setTimeout(() => {
+    router.push('/thread/');
+  }, 0);
+};
 
 // 投稿
 const onPublish = () => {
@@ -167,7 +179,7 @@ onMounted(() => {
                 </div>
                 <div class="text-body-1 mb-2">{{ chat.content }}</div>
                 <div class="d-flex justify-end ga-2">
-                  <v-btn size="x-small" color="primary" @click="onShowThreadSetting(i)">
+                  <v-btn size="x-small" color="primary" @click="onShowThreadSetting(chat.id)">
                     スレッド作成
                   </v-btn>
                   <v-btn size="x-small" color="secondary">
@@ -187,7 +199,7 @@ onMounted(() => {
                   {{ chat.title || '（無題）' }}
                 </div>
                 <div class="d-flex justify-end">
-                  <v-btn size="x-small" color="secondary">
+                  <v-btn size="x-small" color="secondary" @click="selectThread(chat)">
                     <i class="fas fa-comments"></i> スレッドを表示
                   </v-btn>
                 </div>
