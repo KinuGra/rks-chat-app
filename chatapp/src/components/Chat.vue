@@ -2,10 +2,9 @@
 import { inject, ref, reactive, onMounted } from "vue";
 import socketManager from "../socketManager.js";
 import '@fortawesome/fontawesome-free/css/all.css'
+import router from "../router";
 
-const injectedUserName = inject("userName");
-const userName = ref("");
-
+const userName = inject("userName");
 const socket = socketManager.getInstance();
 
 const chatContent = ref("");
@@ -35,7 +34,21 @@ const onPublish = () => {
   chatContent.value = "";
 };
 
-// スレッド作成フォームを表示する
+// 新規追加するスレッドの内容をサーバに送信する
+const onCreateThread = () => {
+  const data = {
+    title: form.threadTitle,
+    messageId: form.messageId,
+  }
+  socket.emit("createThread", data)
+
+  // 入力欄を初期化
+  chatContent.value = "";
+  // threadにルート
+  router.push({ path: '/thread' });
+}
+
+// スレッド作成表示
 const onShowThreadSetting = (id) => {
   form.threadTitle = "";
   form.messageId = id;
