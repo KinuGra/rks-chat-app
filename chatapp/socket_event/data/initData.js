@@ -1,45 +1,30 @@
 export const initChatData = [
     {
         id: 0,
-        content: "そろそろ実装どう進めるか決めたいですね。",
-        timestamp: new Date(),
-        sender: "山田",
-        type: "individual",
-    },
-    {
-        id: 1,
-        title: "実装分担",
-        tags: ["チーム作業", "実装担当"],
+        title: "実装分担の相談",
+        tags: ["役割", "実装", "FE/BE"],
         messages: [
             {
-                id: 1,
-                content: "誰か、フロントエンドやりたい人〜？",
+                id: 0,
+                content: "実装分担どうしましょうか。",
                 timestamp: new Date(),
-                sender: "村田",
+                sender: "山田",
+            },
+            {
+                id: 1,
+                content: "誰か反応して〜",
+                timestamp: new Date(),
+                sender: "山田",
             },
             {
                 id: 2,
-                content: "○○さんはFEやってたし、お願いしていいかも！",
+                content: "◯◯さんはFE、残りはBEでいいんじゃない？",
                 timestamp: new Date(),
-                sender: "山田",
-            }
-        ],
-        type: "thread"
-    },
-    {
-        id: 3,
-        title: "打ち上げどうする？",
-        tags: ["雑談", "予定調整"],
-        messages: [
+                sender: "佐藤",
+            },
             {
                 id: 3,
-                content: "開発終わったら打ち上げしません？",
-                timestamp: new Date(),
-                sender: "村田",
-            },
-            {
-                id: 4,
-                content: "いいね！近くでご飯でも行こう！",
+                content: "じゃあ、FE担当は◯◯さんでBEは僕と△△さんでいきましょう！",
                 timestamp: new Date(),
                 sender: "山田",
             }
@@ -47,70 +32,31 @@ export const initChatData = [
         type: "thread"
     },
     {
-        id: 5,
-        title: "役割決定",
-        tags: ["FE", "BE", "分担"],
+        id: 1,
+        title: "打ち上げどうする？",
+        tags: ["雑談", "打ち上げ"],
         messages: [
             {
-                id: 6,
-                content: "じゃあ、FEは○○さん、BEは僕と△△さんで行きましょう！",
+                id: 4,
+                content: "そういえば、打ち上げはどうしますか？",
                 timestamp: new Date(),
                 sender: "村田",
-            },
-            {
-                id: 7,
-                content: "よろしくお願いします〜！",
-                timestamp: new Date(),
-                sender: "山田",
             }
         ],
         type: "thread"
     },
     {
-        id: 8,
-        content: "履歴画面、明日には完成予定です！",
+        id: 2,
+        content: "履歴の実装は明日完了予定です！",
         timestamp: new Date(),
-        sender: "佐藤",
+        sender: "田中",
         type: "individual",
     },
     {
-        id: 9,
-        title: "データ連携",
-        tags: ["API", "バックエンド"],
-        messages: [
-            {
-                id: 10,
-                content: "APIのレスポンスってどの形式にします？",
-                timestamp: new Date(),
-                sender: "鈴木",
-            },
-            {
-                id: 11,
-                content: "JSONで統一しとくと楽かもです！",
-                timestamp: new Date(),
-                sender: "田中",
-            }
-        ],
-        type: "thread"
-    },
-    {
-        id: 12,
-        title: "打ち上げ候補地",
-        tags: ["ごはん", "雑談"],
-        messages: [
-            {
-                id: 13,
-                content: "近くのイタリアンどうです？",
-                timestamp: new Date(),
-                sender: "松本",
-            },
-            {
-                id: 14,
-                content: "ラーメンもありかも！",
-                timestamp: new Date(),
-                sender: "斉藤",
-            }
-        ],
-        type: "thread"
+        id: 3,
+        content: "誰かメシ行きません？",
+        timestamp: new Date(),
+        sender: "鈴木",
+        type: "individual",
     }
 ];
