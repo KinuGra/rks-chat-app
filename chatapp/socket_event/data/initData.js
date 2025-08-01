@@ -1,25 +1,25 @@
 export const initChatData = [
     {
         id: 0,
-        content: "こんにちは",
+        content: "そろそろ実装どう進めるか決めたいですね。",
         timestamp: new Date(),
         sender: "山田",
         type: "individual",
     },
     {
         id: 1,
-        title: "数学",
-        tags: ["タグ1", "タグ2"],
+        title: "実装分担",
+        tags: ["チーム作業", "実装担当"],
         messages: [
             {
                 id: 1,
-                content: "数学のメモ",
+                content: "誰か、フロントエンドやりたい人〜？",
                 timestamp: new Date(),
                 sender: "村田",
             },
             {
                 id: 2,
-                content: "青チャート",
+                content: "○○さんはFEやってたし、お願いしていいかも！",
                 timestamp: new Date(),
                 sender: "山田",
             }
@@ -28,18 +28,18 @@ export const initChatData = [
     },
     {
         id: 3,
-        title: "英語の講義",
-        tags: ["進捗", "タグ2"],
+        title: "打ち上げどうする？",
+        tags: ["雑談", "予定調整"],
         messages: [
             {
                 id: 3,
-                content: "メモ1",
+                content: "開発終わったら打ち上げしません？",
                 timestamp: new Date(),
                 sender: "村田",
             },
             {
                 id: 4,
-                content: "英語メモ",
+                content: "いいね！近くでご飯でも行こう！",
                 timestamp: new Date(),
                 sender: "山田",
             }
@@ -48,18 +48,18 @@ export const initChatData = [
     },
     {
         id: 5,
-        title: "Svelteの資料",
-        tags: ["情報共有", "ファイル・資料"],
+        title: "役割決定",
+        tags: ["FE", "BE", "分担"],
         messages: [
             {
                 id: 6,
-                content: "Svelteの初心者向け資料",
+                content: "じゃあ、FEは○○さん、BEは僕と△△さんで行きましょう！",
                 timestamp: new Date(),
                 sender: "村田",
             },
             {
                 id: 7,
-                content: "英語メモ",
+                content: "よろしくお願いします〜！",
                 timestamp: new Date(),
                 sender: "山田",
             }
@@ -68,25 +68,25 @@ export const initChatData = [
     },
     {
         id: 8,
-        content: "今日は天気がいいね！",
+        content: "履歴画面、明日には完成予定です！",
         timestamp: new Date(),
         sender: "佐藤",
         type: "individual",
     },
     {
         id: 9,
-        title: "プログラミング学習",
-        tags: ["JavaScript", "学習メモ"],
+        title: "データ連携",
+        tags: ["API", "バックエンド"],
         messages: [
             {
                 id: 10,
-                content: "変数のスコープについて",
+                content: "APIのレスポンスってどの形式にします？",
                 timestamp: new Date(),
                 sender: "鈴木",
             },
             {
                 id: 11,
-                content: "非同期処理の基本",
+                content: "JSONで統一しとくと楽かもです！",
                 timestamp: new Date(),
                 sender: "田中",
             }
@@ -95,22 +95,22 @@ export const initChatData = [
     },
     {
         id: 12,
-        title: "旅行計画",
-        tags: ["旅行", "計画"],
+        title: "打ち上げ候補地",
+        tags: ["ごはん", "雑談"],
         messages: [
             {
                 id: 13,
-                content: "京都に行きたい",
+                content: "近くのイタリアンどうです？",
                 timestamp: new Date(),
                 sender: "松本",
             },
             {
                 id: 14,
-                content: "温泉も候補に入れよう",
+                content: "ラーメンもありかも！",
                 timestamp: new Date(),
                 sender: "斉藤",
             }
         ],
         type: "thread"
     }
-]
+];
