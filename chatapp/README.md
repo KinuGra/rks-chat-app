@@ -12,7 +12,7 @@
    # アプリの開発で使用するライブラリをインストール（初回のみ）
    npm ci
    # 起動コマンドを実行
-   npm run start
+   npm run start or npm run start
    ```
 
 2. `http://サーバのIPアドレス:ポート番号/` にブラウザでアクセスします
