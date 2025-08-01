@@ -15,7 +15,6 @@ export default function publishEvent(io, socket) {
 export function enterEvent(io, socket) {
   socket.on("enterEvent", (data) => {
     socket.emit("enterEvent", chatHistory);
-    console.log(chatHistory);
   });
 }
 
