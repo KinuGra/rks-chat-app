@@ -1,6 +1,7 @@
 import { initChatData } from "./data/initData";
 
-let message_id = 1;
+// let message_id = 1;
+let message_id = 15; //initDataに合わせる
 
 // メッセージを表すクラス
 export class Message{

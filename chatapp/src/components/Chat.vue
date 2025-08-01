@@ -2,10 +2,9 @@
 import { inject, ref, reactive, onMounted } from "vue";
 import socketManager from "../socketManager.js";
 import '@fortawesome/fontawesome-free/css/all.css'
+import router from "../router";
 
-const injectedUserName = inject("userName");
-const userName = ref("");
-
+const userName = inject("userName");
 const socket = socketManager.getInstance();
 
 const chatContent = ref("");
@@ -35,32 +34,18 @@ const onPublish = () => {
   chatContent.value = "";
 };
 
-// メモ
-const onMemo = () => {
-  if (!form.message) {
-    alert("メモの内容を入力してください。");
-    return;
-  }
-  chatList.push({
-    sender: userName.value,
-    content: form.message,
-    timestamp: new Date().toISOString(),
-    type: "memo"
-  });
-  form.message = "";
-};
-
 // 新規追加するスレッドの内容をサーバに送信する
 const onCreateThread = () => {
   const data = {
     title: form.threadTitle,
     messageId: form.messageId,
   }
-  console.log(data)
   socket.emit("createThread", data)
 
   // 入力欄を初期化
   chatContent.value = "";
+  // threadにルート
+  router.push({ path: '/thread' });
 }
 
 // スレッド作成表示
