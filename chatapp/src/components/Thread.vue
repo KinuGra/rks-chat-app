@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0 fill-height thread-panel" style="width: 100%; max-width: none;">
+  <div class="pa-0 fill-height thread-panel" style="width: 100%;">
     <!-- スレッドが選択されている場合 -->
     <div v-if="props.selectedThread" class="fill-height">
       <v-card class="fill-height d-flex flex-column" elevation="0" rounded="0" style="width: 100%;">
@@ -101,7 +101,7 @@
       <v-icon icon="mdi-chat" size="64" class="mb-4" />
       <p class="text-h6">スレッドが選択されていません</p>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script setup>
