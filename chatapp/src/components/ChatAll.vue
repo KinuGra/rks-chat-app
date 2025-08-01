@@ -17,7 +17,9 @@ const handleSelectThread = (thread) => {
 }
 
 // #region global state
-const userName = inject("userName")
+const injectedUserName = inject("userName");
+const userName = ref("");
+
 // #endregion
 
 // #region local variable
@@ -31,6 +33,8 @@ const chatList = reactive([])
 
 // #region lifecycle
 onMounted(() => {
+  // localStorageから取得（なければinjectされたもの）
+  userName.value = localStorage.getItem("userName") || injectedUserName;
   registerSocketEvent()
 })
 // #endregion
